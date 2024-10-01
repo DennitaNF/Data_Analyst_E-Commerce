@@ -23,7 +23,7 @@ datetime_columns = ["order_approved_at"]
 for column in datetime_columns:
     all_data[column] = pd.to_datetime(all_data[column])
 
-def number_order_per_month_df(df):
+def number_order_monthly(df):
     monthly = df.resample(rule='M', on='order_approved_at').agg({
         "order_id": "size",
     })
@@ -53,7 +53,7 @@ def number_order_per_month_df(df):
     monthly = monthly.drop("month_numeric", axis=1)
     return monthly
 
-def customer_spend_df(df):
+def customer_spend(df):
     total_spend = df.resample(rule='M', on='order_approved_at').agg({
             "price": "sum"
     })
@@ -73,12 +73,12 @@ def customer_spend_df(df):
     return sorted
 
 
-def create_by_product_df(df):
+def create_by_producd(df):
     product_counts = df.groupby('product_category_name_english')['product_id'].count().reset_index()
     sorted = product_counts.sort_values(by='product_id', ascending=False)
     return sorted
 
-def rating_cust_df(df):
+def rating_cusd(df):
     rating = df['review_score'].value_counts().sort_values(ascending=False)
 
     max_score = rating.idxmax()
@@ -114,10 +114,10 @@ with st.sidebar:
 
 
 
-daily_orders_df=number_order_per_month_df(all_data)
-most_and_least_products_df=create_by_product_df(all_data)
-rating_service,max_score,df_rating_service=rating_cust_df(all_data)
-customer_spend_df=customer_spend_df(all_data)
+daily_orderd=number_order_monthly(all_data)
+most_and_least_productd=create_by_producd(all_data)
+rating_service,max_score,df_rating_service=rating_cusd(all_data)
+customer_spend=customer_spend(all_data)
 rfm=create_rfm(all_data)
 
 
@@ -126,19 +126,19 @@ st.header('E-Commerce')
 col1, col2 = st.columns(2)
 
 with col1:
-    high_order_num = daily_orders_df['order_count'].max()
-    high_order_month=daily_orders_df[daily_orders_df['order_count'] == daily_orders_df['order_count'].max()]['order_approved_at'].values[0]
+    high_order_num = daily_orderd['order_count'].max()
+    high_order_month=daily_orderd[daily_orderd['order_count'] == daily_orderd['order_count'].max()]['order_approved_at'].values[0]
     st.markdown(f"Highest orders in {high_order_month} : **{high_order_num}**")
 
 with col2:
-    low_order = daily_orders_df['order_count'].min()
-    low_order_month=daily_orders_df[daily_orders_df['order_count'] == daily_orders_df['order_count'].min()]['order_approved_at'].values[0]
+    low_order = daily_orderd['order_count'].min()
+    low_order_month=daily_orderd[daily_orderd['order_count'] == daily_orderd['order_count'].min()]['order_approved_at'].values[0]
     st.markdown(f"Lowest orders in {low_order_month} : **{low_order}**")
 
 fig, ax = plt.subplots(figsize=(16, 8))
 ax.plot(
-    daily_orders_df["order_approved_at"],
-    daily_orders_df["order_count"],
+    daily_orderd["order_approved_at"],
+    daily_orderd["order_count"],
     marker='o',
     linewidth=2,
     color="#90CAF9",
@@ -153,32 +153,32 @@ st.subheader('Customer Spend')
 col1, col2 = st.columns(2)
 
 with col1:
-    total_cust_spend=customer_spend_df['total_cust_spend'].sum()
+    total_cust_spend=customer_spend['total_cust_spend'].sum()
     formatted_total_cust_spend = "%.2f" % total_cust_spend
     st.markdown(f"Total Spend : **{formatted_total_cust_spend}**")
 
 with col2:
-    avg_spend=customer_spend_df['total_cust_spend'].mean()
+    avg_spend=customer_spend['total_cust_spend'].mean()
     formatted_avg_spend = "%.2f" % avg_spend
     st.markdown(f"Average Spend : **{formatted_avg_spend}**")
 
 plt.figure(figsize=(16, 8))
-min_total_cust_spend = customer_spend_df['total_cust_spend'].min()
-max_total_cust_spend = customer_spend_df['total_cust_spend'].max()
+min_total_cust_spend = customer_spend['total_cust_spend'].min()
+max_total_cust_spend = customer_spend['total_cust_spend'].max()
 
 plt.axhline(y=max_total_cust_spend, color='green', linestyle='-', linewidth=0.5, label=f'Max ({max_total_cust_spend:.2f})')
 plt.axhline(y=min_total_cust_spend, color='red', linestyle='-', linewidth=0.5, label=f'Min ({min_total_cust_spend:.2f})')
 sns.barplot(
     x='order_approved_at',
     y='total_cust_spend',
-    data=customer_spend_df,
+    data=customer_spend,
     linewidth=2,
     linestyle='-',
     color="#90CAF9",
 
 )
 plt.xlabel('')
-plt.ylabel('Total Spend')
+plt.ylabel('Total Spend Customers')
 plt.xticks(fontsize=10, rotation=25)
 plt.yticks(fontsize=10)
 plt.legend()
@@ -188,11 +188,11 @@ st.subheader("Most And Least Product")
 col1, col2 = st.columns(2)
 
 with col1:
-    highest_product_sold=most_and_least_products_df['product_id'].max()
+    highest_product_sold=most_and_least_productd['product_id'].max()
     st.markdown(f"Higest Number : **{highest_product_sold}**")
 
 with col2:
-    lowest_product_sold=most_and_least_products_df['product_id'].min()
+    lowest_product_sold=most_and_least_productd['product_id'].min()
     st.markdown(f"Lowest Number : **{lowest_product_sold}**")
 
 fig, ax = plt.subplots(nrows=1, ncols=2, figsize=(16, 8))
@@ -204,7 +204,7 @@ colors = ["#90CAF9", "#D3D3D3", "#D3D3D3", "#D3D3D3", "#D3D3D3"]
 sns.barplot(
     x="product_id",
     y="product_category_name_english",
-    data=most_and_least_products_df.head(5),
+    data=most_and_least_productd.head(5),
     palette=colors,
     ax=ax[0],
     )
@@ -216,7 +216,7 @@ ax[0].tick_params(axis ='y', labelsize=15)
 sns.barplot(
     x="product_id",
     y="product_category_name_english",
-    data=most_and_least_products_df.sort_values(by="product_id", ascending=True).head(5),
+    data=most_and_least_productd.sort_values(by="product_id", ascending=True).head(5),
     palette=colors,
     ax=ax[1],)
 ax[1].set_ylabel('')
@@ -227,12 +227,12 @@ ax[1].yaxis.tick_right()
 ax[1].set_title("products with the lowest sales", loc="center", fontsize=18)
 ax[1].tick_params(axis='y', labelsize=15)
 
-plt.suptitle("most and least sold products", fontsize=20)
+plt.suptitle("The most and least products", fontsize=20)
 st.pyplot(fig)
 
 
-st.subheader("Rating Customer By Service")
-st.markdown(f"Rating Average  : **{df_rating_service.mean():.2f}**")
+st.subheader("Rating Customer")
+st.markdown(f"Average  : **{df_rating_service.mean():.2f}**")
 
 
 
@@ -241,7 +241,7 @@ sns.barplot(
             x=rating_service.index,
             y=rating_service.values,
             order=rating_service.index,
-            palette=["#90CAF9" if score == max_score else "#D3D3D3" for score in rating_service.index]
+            palette=["#00FFFF" if score == max_score else "#D3D3D3" for score in rating_service.index]
             )
 
 plt.title("Rating customers for service", fontsize=15)
@@ -253,7 +253,7 @@ st.pyplot(plt)
 st.subheader("RFM Best Value")
 
 
-colors = ["#90CAF9", "#D3D3D3", "#D3D3D3", "#D3D3D3", "#D3D3D3"]
+colors = ["#00FFFF", "#D3D3D3", "#D3D3D3", "#D3D3D3", "#D3D3D3"]
 
 
 tab1, tab2, tab3 = st.tabs(["Recency", "Frequency", "Monetary"])
@@ -267,7 +267,7 @@ with tab1:
         palette=colors,
 
         )
-    plt.title("By Recency (Day)", loc="center", fontsize=18)
+    plt.title("By Recency", loc="center", fontsize=18)
     plt.ylabel('')
     plt.xlabel("customer")
     plt.tick_params(axis ='x', labelsize=15)
