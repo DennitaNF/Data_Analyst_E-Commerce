@@ -11,14 +11,11 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-import streamlit as st
 from datetime import datetime
 import datetime as dt
 
-from google.colab import drive
-drive.mount('/content/drive')
 
-path = '/content/drive/MyDrive/Colab_Notebooks/all_data.csv'
+path = 'all_data.csv'
 
 all_data = pd.read_csv(path)
 
@@ -30,7 +27,7 @@ def number_order_per_month_df(df):
     monthly = df.resample(rule='M', on='order_approved_at').agg({
         "order_id": "size",
     })
-    monthly.index = monthly.index.strftime('%B') #mengubah format order_approved_at menjadi Tahun-Bulan
+    monthly.index = monthly.index.strftime('%B') 
     monthly = monthly.reset_index()
     monthly.rename(columns={
         "order_id": "order_count",
@@ -68,13 +65,10 @@ def customer_spend_df(df):
     total_spend = total_spend.sort_values('total_cust_spend').drop_duplicates('order_approved_at', keep='last')
     montly_order = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
 
-    # Create a categorical column based on the montly order
     total_spend['month_cat'] = pd.Categorical(total_spend['order_approved_at'], categories=montly_order, ordered=True)
 
-    # Sort the DataFrame based on the categorical column
     sorted = total_spend.sort_values(by='month_cat')
 
-    # Remove the 'month_cat' column if you don't need it
     sorted = sorted.drop(columns=['month_cat'])
     return sorted
 
@@ -127,7 +121,7 @@ customer_spend_df=customer_spend_df(all_data)
 rfm=create_rfm(all_data)
 
 
-st.header('Brazilian E-Commerce Public Dataset')
+st.header('E-Commerce')
 
 col1, col2 = st.columns(2)
 
