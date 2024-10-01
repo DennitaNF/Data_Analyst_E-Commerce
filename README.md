@@ -1,6 +1,4 @@
 # E-Commerce Data Analysis with Python
-![E-Commerce Data Dashboard](dashboard_video.webm)
-
 
 ## Table of Contents
 - [E-Commerce Data Analysis with Python](#e-commerce-data-analysis-with-python)
